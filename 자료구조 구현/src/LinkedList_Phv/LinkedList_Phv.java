@@ -1,3 +1,5 @@
+package LinkedList_Phv;
+
 class Node {
 	int data;
 	Node next;
@@ -120,7 +122,6 @@ class LL {
 	}
 }
 
-
 public class LinkedList_Phv {
 	public static void main(String[] args) {
 		LL ll = new LL();
@@ -149,7 +150,6 @@ public class LinkedList_Phv {
 		ll.add(11, 12);
 		ll.print();
 		ll.print();
-		
 		System.out.println(ll.size);
 	}
 }
