@@ -66,7 +66,7 @@ class LL {
 		Node cur = head.next;
 		int cnt = 0;
 		while(true) {
-			if(cnt + 1 == idx) {
+			if(cnt == idx - 1) {
 				Node cur_next = cur.next;
 				cur.next = newNode;
 				newNode.next = cur_next;
@@ -76,6 +76,10 @@ class LL {
 			cnt++;
 			cur = cur.next;
 		}
+	}
+	
+	void add(int data) {
+		addLast(data);
 	}
 	
 	void delLast() {
@@ -98,7 +102,7 @@ class LL {
 		}
 	}
 	
-	void delFrist() {
+	void delFirst() {
 		if(head.next == null) return;
 		if(head.next == tail) {
 			head.next = null;
@@ -111,6 +115,34 @@ class LL {
 		--size;
 	}
 	
+	void del(int idx) {
+		if(size < idx + 1 || idx < 0) {
+			System.out.println("del idx out of range");
+			return;
+		}
+		if(idx == 0) {
+			delFirst();
+			return;
+		}
+		if(idx + 1 == size) {
+			delLast();
+			return;
+		}
+		
+		Node cur = head.next;
+		int cnt = 0;
+		while(true) {
+			if(cnt == idx - 1) {
+				Node cur_next_next = cur.next.next;
+				cur.next = cur_next_next;
+				--size;
+				break;
+			}
+			cnt++;
+			cur = cur.next;
+		}
+	}
+	
 	void print() {
 		Node cur = head.next;
 		while(true) {
@@ -119,6 +151,23 @@ class LL {
 			cur = cur.next;
 		}
 		System.out.println();
+	}
+	
+	void get(int idx) {
+		if(size < idx + 1 || idx < 0) {
+			System.out.println("get idx out of range");
+			return;
+		}
+		Node cur = head.next;
+		int cnt = 0;
+		while(true) {
+			if(cnt == idx) {
+				System.out.println(cur.data);
+				break;
+			}
+			cnt++;
+			cur = cur.next;
+		}
 	}
 }
 
@@ -132,7 +181,7 @@ public class LinkedList_Phv {
 		ll.print();
 		ll.addFirst(100);
 		ll.print();
-		ll.delFrist();
+		ll.delFirst();
 		ll.print();
 		ll.delLast();
 		ll.print();
@@ -142,6 +191,7 @@ public class LinkedList_Phv {
 		ll.print();
 		ll.addFirst(1000);
 		ll.print();
+		ll.get(9);
 		ll.add(0, 10);
 		ll.print();
 		ll.add(0, 11);
@@ -149,6 +199,7 @@ public class LinkedList_Phv {
 		ll.add(-1, 12);
 		ll.add(11, 12);
 		ll.print();
+		ll.del(12);
 		ll.print();
 		System.out.println(ll.size);
 	}
