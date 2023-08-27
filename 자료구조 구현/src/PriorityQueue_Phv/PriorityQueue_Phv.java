@@ -1,5 +1,7 @@
 package PriorityQueue_Phv;
+
 import java.util.PriorityQueue;
+import java.util.HashSet;
 
 class Node implements Comparable<Node> {
 	int r;
@@ -27,6 +29,34 @@ class Node implements Comparable<Node> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + c;
+		result = prime * result + dist;
+		result = prime * result + r;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Node other = (Node) obj;
+		if (c != other.c)
+			return false;
+		if (dist != other.dist)
+			return false;
+		if (r != other.r)
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "Node [r=" + r + ", c=" + c + ", dist=" + dist + "]";
 	}
@@ -36,39 +66,104 @@ class Node implements Comparable<Node> {
 public class PriorityQueue_Phv {
 	static int[] dr = {1,0,-1,0};
 	static int[] dc = {0,1,0,-1};
+	static PriorityQueue<Node> pq;
 	static int[][] arr;
 	static boolean[][] visited;
+	static HashSet<Node> set_Node;
+	static HashSet<Integer> set_Integer;
+	static int n = 200;
 	
 	public static void main(String[] args) {
-		PriorityQueue<Node> pq = new PriorityQueue();
 		
-		arr = new int[5][5];
-		visited = new boolean[5][5];
+		arr = new int[n][n];
+		long beforeTime = System.currentTimeMillis(); //코드 실행 전에 시간 받아오기
 		
-		Node startNode = new Node(arr.length/2, arr.length/2, 0);
-		pq.add(startNode);
-		visited[startNode.r][startNode.c] = true;
-		arr[startNode.r][startNode.c] = 1;
+//		// method 1) using array : 27sec, 44sec
+//		for(int cnt=0; cnt<20000; cnt++) {
+//			pq = new PriorityQueue();
+//			visited = new boolean[n][n];
+//			
+//			Node startNode = new Node(arr.length/2, arr.length/2, 0);
+//			pq.add(startNode);
+//			visited[startNode.r][startNode.c] = true;
+//			arr[startNode.r][startNode.c] = 1;
+//			
+//			while(!pq.isEmpty()) {
+//				Node popped = pq.poll();
+//				arr[popped.r][popped.c] = 1;
+//				
+//				for(int i=0; i<4; i++) {
+//					int nr = popped.r + dr[i];
+//					int nc = popped.c + dc[i];
+//					
+//					if(bc(nr, nc) == true && !visited[nr][nc]) {
+//						int dist = Math.abs(nr-startNode.r) + Math.abs(nc-startNode.c);
+//						pq.add(new Node(nr, nc, dist));
+//						visited[nr][nc] = true;
+//					}
+//				}
+//			}
+//		}
 		
-		while(!pq.isEmpty()) {
-			Node popped = pq.poll();
-			arr[popped.r][popped.c] = 1;
+//		// method 2) using set_Node : 47sec
+//		for(int cnt=0; cnt<100000; cnt++) {
+//			pq = new PriorityQueue();
+//			set_Node = new HashSet<>();
+//			
+//			Node startNode = new Node(arr.length/2, arr.length/2, 0);
+//			pq.add(startNode);
+//			arr[startNode.r][startNode.c] = 1;
+//			set_Node.add(startNode);
+//			
+//			while(!pq.isEmpty()) {
+//				Node popped = pq.poll();
+//				arr[popped.r][popped.c] = 1;
+//				
+//				for(int i=0; i<4; i++) {
+//					int nr = popped.r + dr[i];
+//					int nc = popped.c + dc[i];
+//					int dist = Math.abs(nr-startNode.r) + Math.abs(nc-startNode.c);
+//					Node toNode = new Node(nr, nc, dist);
+//					
+//					if(bc(nr, nc) == true && !set_Node.contains(toNode)) {
+//						pq.add(toNode);
+//						set_Node.add(toNode);
+//					}
+//				}
+//			}
+//		}
+		
+		// method 3) using set_Integer : 32sec, 63sec->59sec(initial capacity)
+		for(int cnt=0; cnt<20000; cnt++) {
+			pq = new PriorityQueue();
+			set_Integer = new HashSet<>(40000);
 			
-			System.out.println(popped.dist);
-			System.out.println(pq.toString());
-			printarr(arr);
+			Node startNode = new Node(arr.length/2, arr.length/2, 0);
+			pq.add(startNode);
+			arr[startNode.r][startNode.c] = 1;
+			set_Integer.add(startNode.r * arr.length + startNode.c);
 			
-			for(int i=0; i<4; i++) {
-				int nr = popped.r + dr[i];
-				int nc = popped.c + dc[i];
+			while(!pq.isEmpty()) {
+				Node popped = pq.poll();
+				arr[popped.r][popped.c] = 1;
 				
-				if(bc(nr, nc) == true && visited[nr][nc] == false) {
-					int dist = Math.abs(nr-startNode.r) + Math.abs(nc-startNode.c);
-					pq.add(new Node(nr, nc, dist));
-					visited[nr][nc] = true;
+				for(int i=0; i<4; i++) {
+					int nr = popped.r + dr[i];
+					int nc = popped.c + dc[i];
+					int uniqueId = nr * arr.length + nc;
+					
+					if(bc(nr, nc) == true && !set_Integer.contains(uniqueId)) {
+						int dist = Math.abs(nr-startNode.r) + Math.abs(nc-startNode.c);
+						pq.add(new Node(nr, nc, dist));
+						set_Integer.add(uniqueId);
+					}
 				}
 			}
 		}
+		
+		long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
+		long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
+		System.out.println("시간차이(m) : "+secDiffTime);
 	}
 	
 	static boolean bc(int row, int col) {
